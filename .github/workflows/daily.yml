@@ -35,5 +35,6 @@ jobs:
             --sheet-id "${{ secrets.SHEET_ID }}" \
             --tab "Games" \
             --csv games.csv
+            --dedupe-lookback 400
         env:
           GOOGLE_SA_JSON: ${{ secrets.GOOGLE_SA_JSON }}
