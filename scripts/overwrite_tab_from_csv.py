@@ -35,7 +35,7 @@ def main():
     ws = sh.worksheet(args.tab)
 
     # Build values: header row + data rows
-    values = [list(df.columns)] + df.applymap(norm).values.tolist()
+    values = [list(df.columns)] + df.apply(lambda col: col.map(norm)).values.tolist()
 
     end_row = len(values)
     end_col = len(values[0])
