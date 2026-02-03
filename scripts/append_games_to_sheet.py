@@ -29,8 +29,21 @@ def normalize(x) -> str:
     s = str(x).strip()
     return "" if s.lower() in ("nan", "none", "null") else s
 
+def last_nonempty_row_in_col_a(ws) -> int:
+    """
+    Robustly find last non-empty row in column A by scanning values in A:A.
+    This avoids the "used range" / formula-filled columns problem.
+    """
+    col = ws.get("A:A")  # list of rows, each like ["value"]
+    last = 0
+    for i, row in enumerate(col, start=1):
+        v = row[0] if row else ""
+        if normalize(v) != "":
+            last = i
+    return last
+
 def main():
-    ap = argparse.ArgumentParser(description="Write games CSV rows into a Google Sheet tab at first blank row in col A (A–F only).")
+    ap = argparse.ArgumentParser(description="Write games.csv into first blank row of col A (A–F only) and verify.")
     ap.add_argument("--sheet-id", required=True)
     ap.add_argument("--tab", default="Games")
     ap.add_argument("--csv", required=True)
@@ -51,9 +64,8 @@ def main():
     sh = gc.open_by_key(args.sheet_id)
     ws = sh.worksheet(args.tab)
 
-    # Find first blank row in column A based on last non-empty in col A
-    col_a = ws.col_values(1)  # up to last non-empty in col A (includes blanks inside range as "")
-    start_row = len(col_a) + 1
+    last_a = last_nonempty_row_in_col_a(ws)
+    start_row = last_a + 1
 
     rows = []
     for _, r in df.iterrows():
@@ -62,15 +74,24 @@ def main():
     end_row = start_row + len(rows) - 1
     rng = f"A{start_row}:F{end_row}"
 
-    # Write exactly into that empty range (does NOT depend on Sheets "table" detection)
+    # Write exactly where we intend
     ws.update(rng, rows, value_input_option="USER_ENTERED")
+
+    # Read back what we wrote (verification)
+    written_back = ws.get(rng)
 
     print(f"✅ Opened sheet: {sh.title}")
     print(f"✅ Tab: {args.tab}")
-    print(f"✅ Column A last non-empty row was: {len(col_a)}")
-    print(f"✅ Wrote {len(rows)} row(s) into range: {rng}")
-    print("✅ Wrote into columns A–F only (date..site_designation).")
+    print(f"✅ Last non-empty row in column A: {last_a}")
+    print(f"✅ Intended write range: {rng}")
+    print(f"✅ Rows in CSV: {len(rows)}")
+    print(f"✅ Rows read back from sheet: {len(written_back)}")
+    print("\n🔎 First 3 rows read back:")
+    for r in written_back[:3]:
+        print(r)
+    print("\n🔎 Last 3 rows read back:")
+    for r in written_back[-3:]:
+        print(r)
 
 if __name__ == "__main__":
     main()
-
