@@ -2,7 +2,7 @@ name: Daily CBB update
 
 on:
   schedule:
-    - cron: "0 10 * * *"  # ~5AM
+    - cron: "0 10 * * *"  # ~5AM ET (6AM during DST)
   workflow_dispatch:
 
 permissions:
@@ -29,21 +29,11 @@ jobs:
           echo "Scraping games for: $YESTERDAY_ET (America/New_York)"
           python scripts/scrape_games.py "$YESTERDAY_ET" -o games.csv
 
-      # Option A: fetch KenPom via your method (see notes below)
-      - name: Fetch KenPom (optional)
+      - name: Append games.csv to Google Sheet (Games tab)
         run: |
-          python scripts/fetch_kenpom.py --out kenpom.csv
-        env:
-          KENPOM_USER: ${{ secrets.KENPOM_USER }}
-          KENPOM_PASS: ${{ secrets.KENPOM_PASS }}
-
-      - name: Upload CSVs to Google Sheet
-        run: |
-          python scripts/update_sheet.py \
+          python scripts/append_games_to_sheet.py \
             --sheet-id "${{ secrets.SHEET_ID }}" \
-            --games-csv games.csv \
-            --kenpom-csv kenpom.csv \
-            --games-tab "DAILY_GAMES_RAW" \
-            --kenpom-tab "KENPOM_DAILY_RAW"
+            --tab "Games" \
+            --csv games.csv
         env:
           GOOGLE_SA_JSON: ${{ secrets.GOOGLE_SA_JSON }}
