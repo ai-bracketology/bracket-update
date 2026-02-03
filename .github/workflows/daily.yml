@@ -1,0 +1,49 @@
+name: Daily CBB update
+
+on:
+  schedule:
+    - cron: "0 10 * * *"  # ~5AM
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install pandas requests gspread google-auth
+
+      - name: Scrape yesterday's games (ET)
+        run: |
+          YESTERDAY_ET=$(TZ=America/New_York date -d "yesterday" +%F)
+          echo "Scraping games for: $YESTERDAY_ET (America/New_York)"
+          python scripts/scrape_games.py "$YESTERDAY_ET" -o games.csv
+
+      # Option A: fetch KenPom via your method (see notes below)
+      - name: Fetch KenPom (optional)
+        run: |
+          python scripts/fetch_kenpom.py --out kenpom.csv
+        env:
+          KENPOM_USER: ${{ secrets.KENPOM_USER }}
+          KENPOM_PASS: ${{ secrets.KENPOM_PASS }}
+
+      - name: Upload CSVs to Google Sheet
+        run: |
+          python scripts/update_sheet.py \
+            --sheet-id "${{ secrets.SHEET_ID }}" \
+            --games-csv games.csv \
+            --kenpom-csv kenpom.csv \
+            --games-tab "DAILY_GAMES_RAW" \
+            --kenpom-tab "KENPOM_DAILY_RAW"
+        env:
+          GOOGLE_SA_JSON: ${{ secrets.GOOGLE_SA_JSON }}
