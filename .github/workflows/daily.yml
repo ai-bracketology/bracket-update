@@ -36,6 +36,15 @@ jobs:
           KENPOM_USER: ${{ secrets.KENPOM_USER }}
           KENPOM_PASS: ${{ secrets.KENPOM_PASS }}
 
+      - name: Dump KenPom CSV into KenPom2 tab
+        run: |
+          python scripts/overwrite_tab_from_csv.py \
+            --sheet-id "${{ secrets.SHEET_ID }}" \
+            --tab "KenPom2" \
+            --csv kenpom.csv
+        env:
+          GOOGLE_SA_JSON: ${{ secrets.GOOGLE_SA_JSON }}
+
       - name: Append games.csv to Google Sheet (Games tab)
         run: |
           python scripts/append_games_to_sheet.py \
