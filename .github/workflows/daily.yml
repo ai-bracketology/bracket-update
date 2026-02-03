@@ -50,7 +50,7 @@ jobs:
           python scripts/append_games_to_sheet.py \
             --sheet-id "${{ secrets.SHEET_ID }}" \
             --tab "Games" \
-            --csv games.csv
+            --csv games.csv \
             --dedupe-lookback 400
         env:
           GOOGLE_SA_JSON: ${{ secrets.GOOGLE_SA_JSON }}
