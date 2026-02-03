@@ -3,19 +3,25 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Daily CBB Tournament Field</title>
+    <title>Daily CBB Bracket Update</title>
     <style>
-      body { margin: 0; font-family: system-ui, sans-serif; }
-      .wrap { padding: 16px; }
-      iframe { width: 100%; height: 90vh; border: 0; }
+      body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 0; }
+      header { padding: 16px 20px; border-bottom: 1px solid #e6e6e6; }
+      h1 { margin: 0 0 6px 0; font-size: 20px; }
+      .sub { color: #555; font-size: 14px; }
+      main { padding: 0; }
+      iframe { width: 100%; height: 95vh; border: 0; }
     </style>
   </head>
   <body>
-    <div class="wrap">
-      <h1>Daily Tournament Field (SLCT / SLCT+)</h1>
+    <header>
+      <h1>Daily CBB Bracket Update</h1>
+      <div class="sub">Auto-updated daily from Google Sheets (SLCT / SLCT+).</div>
+    </header>
 
-      <!-- paste your "Publish chart" embed iframe here -->
-      <iframe src="PASTE_EMBED_URL_HERE"></iframe>
-    </div>
+    <main>
+      <!-- Paste the iframe from "Publish to web → Embed" here -->
+      <iframe src="https://docs.google.com/spreadsheets/d/e/2PACX-1vTVdxNvZH6vyW7Q0CwXAdMqxVh62VMhY4kf_-8ZdACwYCXdaH57VvILurCbYUXnE3KGm1jjUU183mHY/pubhtml?gid=838112981&single=true"></iframe>
+    </main>
   </body>
 </html>
